@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run syntax check
+      run: |
+        python -m py_compile agent/__init__.py agent/core.py agent/prompts.py
+        python -m py_compile guardrails/__init__.py guardrails/controls.py guardrails/detector.py
+        python -m py_compile tools/__init__.py tools/mock_tools.py
+        python -m py_compile attacks/__init__.py attacks/suite.py
+        python -m py_compile observability/__init__.py observability/audit.py
+        python -m py_compile tests/__init__.py tests/test_mock_tools.py tests/test_agent_core.py tests/test_security_gateway.py tests/test_detector.py tests/test_attack_suite.py
+    
+    - name: Run tests
+      run: |
+        python -X utf8 -m pytest tests/ -v --tb=short
+    
+    - name: Run deterministic attack suite (baseline)
+      run: |
+        python -X utf8 -m attacks.suite --mode baseline --all --output logs/
+      continue-on-error: false
+    
+    - name: Run deterministic attack suite (hardened)
+      run: |
+        python -X utf8 -m attacks.suite --mode hardened --all --output logs/
+      continue-on-error: false
+    
+    - name: Generate red-team report
+      run: |
+        python -X utf8 -m attacks.suite --all --report --output logs/
+      continue-on-error: false
+    
+    - name: Upload attack results
+      uses: actions/upload-artifact@v4
+      with:
+        name: attack-results
+        path: logs/attack_results_*.json
+        retention-days: 7
+    
+    - name: Upload red-team report
+      uses: actions/upload-artifact@v4
+      with:
+        name: redteam-report
+        path: logs/redteam_report_*.json
+        retention-days: 7
+    
+    - name: Upload markdown report
+      uses: actions/upload-artifact@v4
+      with:
+        name: redteam-report-md
+        path: logs/redteam_report_*.md
+        retention-days: 7
+    
+    - name: Upload audit log
+      uses: actions/upload-artifact@v4
+      with:
+        name: audit-log
+        path: logs/agent_audit.jsonl
+        retention-days: 7
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    
+    - name: Install linting tools
+      run: |
+        pip install ruff
+    
+    - name: Run ruff linting
+      run: |
+        ruff check agent/ guardrails/ tools/ attacks/ observability/ tests/
+    
+    - name: Run ruff format check
+      run: |
+        ruff format --check agent/ guardrails/ tools/ attacks/ observability/ tests/
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    
+    - name: Install security tools
+      run: |
+        pip install bandit safety
+    
+    - name: Run bandit security linter
+      run: |
+        bandit -r agent/ guardrails/ tools/ attacks/ observability/ -f json -o bandit-report.json || true
+    
+    - name: Upload bandit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-report
+        path: bandit-report.json
+        retention-days: 7
+    
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json || true
+    
+    - name: Upload safety report
+      uses: actions/upload-artifact@v4
+      with:
+        name: safety-report
+        path: safety-report.json
+        retention-days: 7

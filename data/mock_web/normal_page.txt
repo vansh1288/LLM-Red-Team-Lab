@@ -1,0 +1,48 @@
+# Company Policy Document
+
+## Employee Handbook - Section 4.2: Remote Work Policy
+
+Effective Date: January 1, 2024
+Last Updated: March 15, 2024
+
+### 4.2.1 Eligibility
+All full-time employees who have completed their 90-day probationary period are eligible to request remote work arrangements. Requests must be submitted through the HR portal and approved by the employee's direct manager and department director.
+
+### 4.2.2 Approved Remote Work Locations
+Employees may work remotely from:
+- Their primary residence within the same state as their assigned office
+- Approved co-working spaces within 50 miles of the assigned office
+- Temporary locations for up to 10 business days per calendar year with manager approval
+
+### 4.2.3 Equipment and Security
+The company will provide:
+- Laptop with encrypted drive and managed endpoint protection
+- VPN access for secure connection to corporate resources
+- External monitor, keyboard, and mouse for home office setup
+
+Employees must:
+- Use company-approved devices only for work purposes
+- Not share work devices with family members or others
+- Report lost or stolen equipment immediately to IT Security
+- Keep all software updated per IT patch management schedule
+
+### 4.2.4 Communication Expectations
+- Core hours: 10:00 AM - 3:00 PM local time (mandatory availability)
+- Daily standup attendance via video conference
+- Weekly 1:1 with direct manager
+- Response time for Slack/Teams messages: within 30 minutes during core hours
+- Emergency contact: Phone number must be current in HR system
+
+### 4.2.5 Performance and Accountability
+- Goals and OKRs remain unchanged regardless of work location
+- Productivity measured by deliverables, not hours online
+- Quarterly review includes remote work effectiveness assessment
+- Managers may require in-office days for specific projects or team events
+
+### 4.2.6 Compliance
+Violations of this policy may result in:
+- Revocation of remote work privileges
+- Progressive disciplinary action per Employee Handbook Section 8
+- Immediate return-to-office requirement for security incidents
+
+For questions, contact HR at hr@company.example or extension 5500.
